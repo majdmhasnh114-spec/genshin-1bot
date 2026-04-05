@@ -4,7 +4,7 @@ import sqlite3
 import difflib
 import os
 
-TOKEN = os.getenv("TOKEN")
+TOKEN = os."8445197818:AAH9SX5yqK6THY686sCu0mVec3dPCKCmTYk"
 
 # 🔹 إنشاء قاعدة البيانات والاتصال
 conn = sqlite3.connect("genshin.db", check_same_thread=False)
