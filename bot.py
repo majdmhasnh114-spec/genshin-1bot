@@ -6,8 +6,26 @@ import os
 
 TOKEN = os.getenv("TOKEN")
 
+# 🔹 إنشاء قاعدة البيانات والاتصال
 conn = sqlite3.connect("genshin.db", check_same_thread=False)
 cursor = conn.cursor()
+
+# 🔹 إنشاء جدول الشخصيات إذا مش موجود
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS characters (
+    name TEXT,
+    name_ar TEXT,
+    build TEXT,
+    cons TEXT,
+    passive TEXT,
+    materials TEXT
+)
+""")
+
+# 🔹 إضافة الشخصيات تلقائياً إذا الجدول فارغ
+cursor.execute("SELECT COUNT(*) FROM characters")
+if cursor.fetchone()[0] == 0:
+    import add_characters  # هذا الملف مسؤول عن إضافة الشخصيات مرة واحدة فقط
 
 # 🔹 تحديد نوع الطلب
 def get_type(text):
@@ -36,7 +54,6 @@ def get_names():
 def find_character(text):
     names = get_names()
     words = text.split()
-
     for word in words:
         match = difflib.get_close_matches(word, names, n=1, cutoff=0.6)
         if match:
@@ -55,7 +72,6 @@ def get_data(name):
 # 🔹 الرد
 async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.lower()
-
     req = get_type(text)
     if not req:
         return
@@ -78,7 +94,7 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("❌ ما ضفت صورة لهالمطلب")
 
-# 🔹 تشغيل
+# 🔹 تشغيل البوت
 app = ApplicationBuilder().token(TOKEN).build()
 app.add_handler(MessageHandler(filters.TEXT, handle))
 app.run_polling()
